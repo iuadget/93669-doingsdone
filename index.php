@@ -1,4 +1,5 @@
 <?php
+/** @var TYPE_NAME $days */
 $days = rand(0, 3);
 $task_deadline_ts = strtotime("+" . $days . " day"); // метка времени даты выполнения задачи
 $current_ts = time(); // текущая метка времени
