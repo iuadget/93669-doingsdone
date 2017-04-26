@@ -47,6 +47,18 @@ function check_deadline($date) {
     } else
         return false;
 }
+
+function count_task($tasks, $project) {
+    if ($project == "Все")
+        return count($tasks);
+    $count = 0;
+    foreach ($tasks as $task) {
+        if ($task['project'] == $project)
+            $count++;
+    }
+    return $count;
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -99,7 +111,7 @@ function check_deadline($date) {
                         ?>
                         ">
                             <a class="main-navigation__list-item-link" href="#"><?php echo $project; ?></a>
-                            <span class="main-navigation__list-item-count">0</span>
+                            <span class="main-navigation__list-item-count"><?php echo count_task($tasks, $project); ?></span>
                         </li>
                         <?php endforeach; ?>
                     </ul>
