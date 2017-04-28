@@ -1,43 +1,27 @@
 <?php
 
-function count_task($tasks, $project) {
-    if ($project == "Все")
-        return count($tasks);
-    $count = 0;
-    foreach ($tasks as $task) {
-        if ($task['project'] == $project)
-            $count++;
-    }
-    return $count;
-}
-
-function check_deadline($date) {
-    if ($date) {
-        $task_deadline_ts = strtotime($date);
-        $current_ts = time();
-        $days_until_deadline = floor(($task_deadline_ts - $current_ts) / 86400);
-        return $days_until_deadline <= 1;
-    } else
-        return false;
-}
 
 function clean_tags(&$item) {
-    $item = htmlspecialchars($item);
+    $item = htmlspecialchars($item, ENT_QUOTES, 'UTF-8' );
 }
 
-function include_template($template_path, $data=NULL) {
-    ob_start();
+function include_template($filename, $data = []) {
 
-    if ( !is_null($data) ) {
-        array_walk_recursive($data, "clean_tags");
-        extract($data);
-    }
+    $filename = 'templates/' . $filename;
 
-    if ( file_exists($template_path) ) {
-        include_once($template_path);
-    } else {
+    if ( ! file_exists( $filename ) || ! is_readable( $filename ) ) {
         return '';
     }
 
-    ob_end_flush();
+    array_walk_recursive( $data, 'clean_tags' );
+
+    extract( $data );
+
+    ob_start();
+
+    require_once $filename;
+
+    return ob_get_clean();
+
 }
+
