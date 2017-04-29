@@ -8,7 +8,7 @@
                     <li class="main-navigation__list-item <?php if ($key == 0) echo "main-navigation__list-item--active"; ?>
                         ">
                         <a class="main-navigation__list-item-link" href="#"><?php echo $project; ?></a>
-                        <span class="main-navigation__list-item-count"><?php echo count_task($tasks, $project); ?></span>
+                        <span class="main-navigation__list-item-count"><?php echo $count_task($tasks, $project); ?></span>
                     </li>
                 <?php endforeach; ?>
             </ul>
@@ -58,7 +58,7 @@
         <table class="tasks">
 
             <?php foreach ($tasks as $task) : ?>
-                <tr class="tasks__item task <?php if ($task['completed']) echo "task--completed"; else if (check_deadline($task['date'])) echo "task--important"; ?>">
+                <tr class="tasks__item task <?php if ($task['completed']) echo "task--completed"; else if ($check_deadline($task['date'])) echo "task--important"; ?>">
                     <td class="task__select">
                         <label class="checkbox task__checkbox">
                             <input class="checkbox__input visually-hidden" type="checkbox">

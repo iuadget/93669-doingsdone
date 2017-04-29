@@ -42,7 +42,7 @@ $tasks = [
     ],
 ];
 
- function count_task  ($tasks, $project) {
+ $count_task = function  ($tasks, $project) {
     if ($project == "Все")
         return count($tasks);
     $count = 0;
@@ -53,7 +53,7 @@ $tasks = [
     return $count;
 };
 
- function check_deadline ($date) {
+  $check_deadline = function ($date) {
     if ($date) {
         $task_deadline_ts = strtotime($date);
         $current_ts = time();
@@ -81,7 +81,7 @@ $tasks = [
     <div class="container container--with-sidebar">
         <?php
         echo include_template('header.php');
-        echo include_template('main.php', ["projects" => $projects, "tasks" => $tasks]);
+        echo include_template('main.php', ["projects" => $projects, "tasks" => $tasks, "count_task" => $count_task, "check_deadline" => $check_deadline]);
         ?>
     </div>
 </div>
