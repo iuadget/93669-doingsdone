@@ -2,8 +2,12 @@
 
 
 function clean_tags(&$item) {
-    if (! is_string($item))
+    if (! is_string($item)) {
         return $item;
+    }
+
+    return htmlspecialchars($item);
+
 }
 
 function include_template($filename, $data = []) {
