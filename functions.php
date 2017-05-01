@@ -1,12 +1,19 @@
 <?php
 
-
 function clean_tags(&$item) {
-    if (! is_string($item)) {
+
+    if (!($item && (is_string($item) || is_array($item)))) {
         return $item;
     }
 
-    return htmlspecialchars($item);
+    if (is_array($item)) {
+        return array_map(function ($item) {
+            return clean_tags($item);
+            }, $item);
+    }
+
+    $item = htmlspecialchars($item);
+    return $item;
 
 }
 
