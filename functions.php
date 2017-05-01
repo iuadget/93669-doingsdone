@@ -2,16 +2,8 @@
 
 
 function clean_tags(&$item) {
-    if (!($item and (is_string($item) || is_array($item)))) {
+    if (! is_string($item))
         return $item;
-    }
-    if (is_array($item)) {
-        return array_map(function ($item) {
-            return xss_clean($item);
-        }, $item);
-    }
-    $item = htmlspecialchars($item);
-    return $item;
 }
 
 function include_template($filename, $data = []) {
