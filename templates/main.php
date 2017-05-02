@@ -7,8 +7,8 @@
                 <?php foreach ($projects as $key => $project) : ?>
                     <li class="main-navigation__list-item <?php if ($key == 0) echo "main-navigation__list-item--active"; ?>
                         ">
-                        <a class="main-navigation__list-item-link" href="#"><?php echo $project; ?></a>
-                        <span class="main-navigation__list-item-count"><?php echo $count_task($tasks, $project); ?></span>
+                        <a class="main-navigation__list-item-link" href="/index.php?project=<?php echo $key; ?>"><?php echo $project; ?></a>
+                        <span class="main-navigation__list-item-count"><?php echo count_task($tasks, $project); ?></span>
                     </li>
                 <?php endforeach; ?>
             </ul>
@@ -27,27 +27,12 @@
         </form>
 
         <div class="tasks-controls">
-            <div class="radio-button-group">
-                <label class="radio-button">
-                    <input class="radio-button__input visually-hidden" type="radio" name="radio" checked="">
-                    <span class="radio-button__text">Все задачи</span>
-                </label>
-
-                <label class="radio-button">
-                    <input class="radio-button__input visually-hidden" type="radio" name="radio">
-                    <span class="radio-button__text">Повестка дня</span>
-                </label>
-
-                <label class="radio-button">
-                    <input class="radio-button__input visually-hidden" type="radio" name="radio">
-                    <span class="radio-button__text">Завтра</span>
-                </label>
-
-                <label class="radio-button">
-                    <input class="radio-button__input visually-hidden" type="radio" name="radio">
-                    <span class="radio-button__text">Просроченные</span>
-                </label>
-            </div>
+            <nav class="tasks-switch">
+                <a href="/" class="tasks-switch__item tasks-switch__item--active">Все задачи</a>
+                <a href="/" class="tasks-switch__item">Повестка дня</a>
+                <a href="/" class="tasks-switch__item">Завтра</a>
+                <a href="/" class="tasks-switch__item">Просроченные</a>
+            </nav>
 
             <label class="checkbox">
                 <input id="show-complete-tasks" class="checkbox__input visually-hidden" type="checkbox" checked>
@@ -55,10 +40,19 @@
             </label>
         </div>
 
-        <table class="tasks">
+
+        <?php
+        if ( isset( $projects[ $project_id ] ) ) : ?>
+
+            <table class="tasks">
 
             <?php foreach ($tasks as $task) : ?>
-                <tr class="tasks__item task <?php if ($task['completed']) echo "task--completed"; else if ($check_deadline($task['date'])) echo "task--important"; ?>">
+                <tr class="tasks__item task <?php if ($task['completed']) {
+                    echo "task--completed"; }
+                    else if (check_deadline($task['date'])) {
+                    echo "task--important";}
+                if ( $task['project'] != $projects[ $project_id ] && $project_id != 0 ) {
+                    echo " hidden";} ?>">
                     <td class="task__select">
                         <label class="checkbox task__checkbox">
                             <input class="checkbox__input visually-hidden" type="checkbox">
@@ -91,5 +85,8 @@
             <?php endforeach; ?>
 
         </table>
+        <?php else : ?>
+            <div>Задач не найдено</div>
+        <?php endif; ?>
     </main>
 </div>

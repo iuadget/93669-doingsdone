@@ -1,9 +1,9 @@
 <?php
 require_once 'functions.php';
 
-$projects = ["Все", "Входящие", "Учеба", "Работа", "Домашние дела", "Авто"];
-
-$tasks = [
+$data['project_id'] = ( $_GET['project'] ) ?? 0;
+$data['projects'] = ["Все", "Входящие", "Учеба", "Работа", "Домашние дела", "Авто"];
+$data['tasks'] = [
     [
         "title"     => "Собеседование в IT компании",
         "date"      => "01.06.2017",
@@ -61,7 +61,10 @@ $tasks = [
         return $days_until_deadline <= 1;
     } else
         return false;
-}
+};
+
+if ( ! isset( $data['projects'][ $data['project_id'] ] ) )
+    header("HTTP/1.0 404 Not Found");
 
 ?>
 <!DOCTYPE html>
@@ -81,7 +84,7 @@ $tasks = [
     <div class="container container--with-sidebar">
         <?php
         echo include_template('header.php');
-        echo include_template('main.php', ["projects" => $projects, "tasks" => $tasks, "count_task" => $count_task, "check_deadline" => $check_deadline]);
+        echo include_template('main.php', $data );
         ?>
     </div>
 </div>
