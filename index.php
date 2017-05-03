@@ -1,70 +1,99 @@
 <?php
 require_once 'functions.php';
 
-$data['project_id'] = ( $_GET['project'] ) ?? 0;
-$data['projects'] = ["Все", "Входящие", "Учеба", "Работа", "Домашние дела", "Авто"];
-$data['tasks'] = [
+define('P_ALL', 0);
+define('P_INCOME', 1);
+define('P_LEARN', 2);
+define('P_WORK', 3);
+define('P_HOME', 4);
+define('P_AUTO', 5);
+
+$current_ts = time();
+
+$projects = [
+    P_ALL    => 'Все',
+    P_INCOME => 'Входящие',
+    P_LEARN  => 'Учеба',
+    P_WORK   => 'Работа',
+    P_HOME   => 'Домашние дела',
+    P_AUTO   => 'Авто',
+];
+$tasks = [
     [
         "title"     => "Собеседование в IT компании",
         "date"      => "01.06.2017",
-        "project"   => "Работа",
+        "project"   => P_WORK,
         "completed" => false
     ],
     [
         "title"     => "Выполнить тестовое задание",
         "date"      => "25.05.2017",
-        "project"   => "Работа",
+        "project"   => P_WORK,
         "completed" => false
     ],
     [
         "title"     => "Сделать задание первого раздела",
         "date"      => "21.04.2017",
-        "project"   => "Учеба",
+        "project"   => P_LEARN,
         "completed" => true
     ],
     [
         "title"     => "Встреча с другом",
         "date"      => "22.04.2017",
-        "project"   => "Входящие",
+        "project"   => P_INCOME,
         "completed" => false
     ],
     [
         "title"     => "Купить корм для кота",
         "date"      => "",
-        "project"   => "Домашние дела",
+        "project"   => P_HOME,
         "completed" => false
     ],
     [
         "title"     => "Заказать пиццу",
         "date"      => "",
-        "project"   => "Домашние дела",
+        "project"   => P_HOME,
         "completed" => false
     ],
 ];
 
- $count_task = function  ($tasks, $project) {
-    if ($project == "Все")
+$current_project = get_current_code();
+if (!get_project_name($projects, $current_project)) {
+    header($_SERVER["SERVER_PROTOCOL"] . ' 404 Not Found');
+    exit;
+}
+
+$get_tasks_project = function ( $tasks, $project_code) {
+    if ($project_code == P_ALL) {
         return count($tasks);
+    }
     $count = 0;
     foreach ($tasks as $task) {
-        if ($task['project'] == $project)
+        if ($task['project'] == $project_code) {
             $count++;
+        }
     }
     return $count;
 };
 
-  $check_deadline = function ($date) {
-    if ($date) {
-        $task_deadline_ts = strtotime($date);
-        $current_ts = time();
-        $days_until_deadline = floor(($task_deadline_ts - $current_ts) / 86400);
-        return $days_until_deadline <= 1;
-    } else
-        return false;
+$get_tasks_code = function ( $tasks, $project_code) {
+    if ($project_code == P_ALL) {
+        return $tasks;
+    }
+    return array_filter($tasks, function ($task) use ($project_code) {
+        return ($task['project_code'] == $project_code);
+    });
 };
 
-if ( ! isset( $data['projects'][ $data['project_id'] ] ) )
-    header("HTTP/1.0 404 Not Found");
+function get_current_code ()
+{
+    return (isset($_GET['project']) ? (int) $_GET['project'] : P_ALL);
+}
+
+function get_project_name (array $projects, $project_code)
+{
+    return (isset($projects[$project_code]) ? $projects[$project_code] : null);
+}
 
 ?>
 <!DOCTYPE html>
@@ -84,7 +113,7 @@ if ( ! isset( $data['projects'][ $data['project_id'] ] ) )
     <div class="container container--with-sidebar">
         <?php
         echo include_template('header.php');
-        echo include_template('main.php', $data );
+        echo include_template('main.php', ['current_ts' => $current_ts, 'projects' => $projects, 'tasks' => $tasks, 'current_project' => $current_project, 'get_tasks_project' => $get_tasks_project, 'get_tasks_code' => $get_tasks_code, 'check_deadline' => $check_deadline,]);
         ?>
     </div>
 </div>

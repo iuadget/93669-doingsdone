@@ -4,11 +4,11 @@
 
         <nav class="main-navigation">
             <ul class="main-navigation__list">
-                <?php foreach ($projects as $key => $project) : ?>
-                    <li class="main-navigation__list-item <?php if ($key == 0) echo "main-navigation__list-item--active"; ?>
-                        ">
-                        <a class="main-navigation__list-item-link" href="/index.php?project=<?php echo $key; ?>"><?php echo $project; ?></a>
-                        <span class="main-navigation__list-item-count"><?php echo count_task($tasks, $project); ?></span>
+                <?php foreach ($data['projects'] as $project_code => $project_name): ?>
+                    <li class="main-navigation__list-item <?= ($data['current_project_code'] == $project_code ? 'main-navigation__list-item--active' : ''); ?>">
+                        <a class="main-navigation__list-item-link"
+                           href="/index.php?project=<?= $project_code; ?>"><?= $project_name; ?></a>
+                        <span class="main-navigation__list-item-count"><?= $data['get_tasks_project']($data['tasks'], $project_code); ?></span>
                     </li>
                 <?php endforeach; ?>
             </ul>
@@ -40,53 +40,52 @@
             </label>
         </div>
 
-
-        <?php
-        if ( isset( $projects[ $project_id ] ) ) : ?>
-
             <table class="tasks">
 
-            <?php foreach ($tasks as $task) : ?>
-                <tr class="tasks__item task <?php if ($task['completed']) {
-                    echo "task--completed"; }
-                    else if (check_deadline($task['date'])) {
-                    echo "task--important";}
-                if ( $task['project'] != $projects[ $project_id ] && $project_id != 0 ) {
-                    echo " hidden";} ?>">
-                    <td class="task__select">
-                        <label class="checkbox task__checkbox">
-                            <input class="checkbox__input visually-hidden" type="checkbox">
-                            <span class="checkbox__text"><?php echo $task['title']; ?></span>
-                        </label>
-                    </td>
+                <?php foreach ($data['get_tasks_code']($data['tasks'], $data['current_project']) as $task): ?>
+                    <?php $class_task_status = ''; ?>
 
-                    <td class="task__date">
-                        <?php echo ($task['date']) ? $task['date'] : "Нет"; ?>
-                    </td>
+                    <?php if ($task['completed']): ?>
+                        <?php $class_task_status = 'task--completed'; ?>
+                    <?php elseif ($task['date']): ?>
+                        <?php $days_until_deadline = floor(strtotime($task['date']) / 86400) - (floor($data['current_ts'] / 86400) + 1); ?>
+                        <?php $class_task_status = ($days_until_deadline <= 0 ? 'task--important' : ''); ?>
+                    <?php endif; ?>
 
-                    <td class="task__controls">
-                        <button class="expand-control" type="button" name="button"><?php echo $task['title']; ?></button>
+                    <tr class="tasks__item task <?= $class_task_status; ?>">
+                        <td class="task__select">
+                            <label class="checkbox task__checkbox">
+                                <input class="checkbox__input visually-hidden"
+                                       type="checkbox" <?= ($task['completed'] ? 'checked' : ''); ?>>
+                                <span class="checkbox__text"><?= $task['title']; ?></span>
+                            </label>
+                        </td>
+                        <td class="task__date"><?php echo ( $task['date'] ) ? $task['date'] : "Нет"; ?></td>
 
-                        <ul class="expand-list hidden">
-                            <li class="expand-list__item">
-                                <a href="#">Выполнить</a>
-                            </li>
+                        <td class="task__controls">
+                            <?php if (!$task['completed']): ?>
+                                <button class="expand-control" type="button" name="button">Действия
+                                </button>
 
-                            <li class="expand-list__item">
-                                <a href="#">Удалить</a>
-                            </li>
+                                <ul class="expand-list hidden">
+                                    <li class="expand-list__item">
+                                        <a href="#">Выполнить</a>
+                                    </li>
 
-                            <li class="expand-list__item">
-                                <a href="#">Дублировать</a>
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
+                                    <li class="expand-list__item">
+                                        <a href="#">Удалить</a>
+                                    </li>
 
-        </table>
-        <?php else : ?>
-            <div>Задач не найдено</div>
-        <?php endif; ?>
+                                    <li class="expand-list__item">
+                                        <a href="#">Дублировать</a>
+                                    </li>
+                                </ul>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+
+            </table>
+
     </main>
 </div>
