@@ -20,82 +20,82 @@ $projects = [
 ];
 $tasks = [
     [
-        "title"     => "Собеседование в IT компании",
-        "date"      => "01.06.2017",
-        "project"   => P_WORK,
-        "completed" => false
+        'title'    => 'Собеседование в IT компании',
+        'date'     => '01.06.2017',
+        'project'  => P_WORK,
+        'completed'=> false,
     ],
     [
-        "title"     => "Выполнить тестовое задание",
-        "date"      => "25.05.2017",
-        "project"   => P_WORK,
-        "completed" => false
+        'title'    => 'Выполнить тестовое задание',
+        'date'     => '25.05.2017',
+        'project'  => P_WORK,
+        'completed'=> false,
     ],
     [
-        "title"     => "Сделать задание первого раздела",
-        "date"      => "21.04.2017",
-        "project"   => P_LEARN,
-        "completed" => true
+        'title'    => 'Сделать задание первого раздела',
+        'date'     => '21.04.2017',
+        'project'  => P_LEARN,
+        'completed'=> true,
     ],
     [
-        "title"     => "Встреча с другом",
-        "date"      => "22.04.2017",
-        "project"   => P_INCOME,
-        "completed" => false
+        'title'    => 'Встреча с другом',
+        'date'     => '22.04.2017',
+        'project'  => P_INCOME,
+        'completed'=> false,
     ],
     [
-        "title"     => "Купить корм для кота",
-        "date"      => "",
-        "project"   => P_HOME,
-        "completed" => false
+        'title'    => 'Купить корм для кота',
+        'date'     => '',
+        'project'  => P_HOME,
+        'completed'=> false,
     ],
     [
-        "title"     => "Заказать пиццу",
-        "date"      => "",
-        "project"   => P_HOME,
-        "completed" => false
+        'title'    => 'Заказать пиццу',
+        'date'     => '',
+        'project'  => P_HOME,
+        'completed'=> false,
     ],
 ];
 
 $current_project = get_current_code();
-if (!get_project_name($projects, $current_project)) {
+if (!get_project_name ($projects, $current_project)) {
     header($_SERVER["SERVER_PROTOCOL"] . ' 404 Not Found');
     exit;
 }
 
-$get_tasks_project = function ( $tasks, $project_code) {
-    if ($project_code == P_ALL) {
+$get_tasks_project = function ( $tasks,  $project) {
+    if ($project == P_ALL) {
         return count($tasks);
     }
     $count = 0;
     foreach ($tasks as $task) {
-        if ($task['project'] == $project_code) {
+        if ($task['project'] == $project) {
             $count++;
         }
     }
     return $count;
 };
 
-$get_tasks_code = function ( $tasks, $project_code) {
-    if ($project_code == P_ALL) {
+$get_tasks_code = function ( $tasks,  $project) {
+    if ($project == P_ALL) {
         return $tasks;
     }
-    return array_filter($tasks, function ($task) use ($project_code) {
-        return ($task['project_code'] == $project_code);
+    return array_filter($tasks, function ($task) use ($project) {
+        return ($task['project'] == $project);
     });
 };
 
-function get_current_code ()
+function get_current_code()
 {
     return (isset($_GET['project']) ? (int) $_GET['project'] : P_ALL);
 }
 
-function get_project_name (array $projects, $project_code)
+function get_project_name(array $projects, $project)
 {
-    return (isset($projects[$project_code]) ? $projects[$project_code] : null);
+    return (isset($projects[$project]) ? $projects[$project] : null);
 }
-
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -113,7 +113,14 @@ function get_project_name (array $projects, $project_code)
     <div class="container container--with-sidebar">
         <?php
         echo include_template('header.php');
-        echo include_template('main.php', ['current_ts' => $current_ts, 'projects' => $projects, 'tasks' => $tasks, 'current_project' => $current_project, 'get_tasks_project' => $get_tasks_project, 'get_tasks_code' => $get_tasks_code, 'check_deadline' => $check_deadline,]);
+        echo include_template('main.php', [
+            'current_ts' => $current_ts,
+            'projects' => $projects,
+            'tasks' => $tasks,
+            'current_project' => $current_project,
+            'get_tasks_project' => $get_tasks_project,
+            'get_tasks_code' => $get_tasks_code,
+            ]);
         ?>
     </div>
 </div>
