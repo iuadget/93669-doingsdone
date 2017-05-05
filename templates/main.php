@@ -4,11 +4,11 @@
 
         <nav class="main-navigation">
             <ul class="main-navigation__list">
-                <?php foreach ($projects as $key => $project) : ?>
-                    <li class="main-navigation__list-item <?php if ($key == 0) echo "main-navigation__list-item--active"; ?>
-                        ">
-                        <a class="main-navigation__list-item-link" href="#"><?php echo $project; ?></a>
-                        <span class="main-navigation__list-item-count"><?php echo $count_task($tasks, $project); ?></span>
+                <?php foreach ($data['projects'] as $project => $project_name): ?>
+                    <li class="main-navigation__list-item <?= ($data['current_project'] == $project ? 'main-navigation__list-item--active' : ''); ?>">
+                        <a class="main-navigation__list-item-link"
+                           href="/index.php?project=<?= $project; ?>"><?= $project_name; ?></a>
+                        <span class="main-navigation__list-item-count"><?= $data['get_tasks_project']($data['tasks'], $project); ?></span>
                     </li>
                 <?php endforeach; ?>
             </ul>
@@ -27,27 +27,12 @@
         </form>
 
         <div class="tasks-controls">
-            <div class="radio-button-group">
-                <label class="radio-button">
-                    <input class="radio-button__input visually-hidden" type="radio" name="radio" checked="">
-                    <span class="radio-button__text">Все задачи</span>
-                </label>
-
-                <label class="radio-button">
-                    <input class="radio-button__input visually-hidden" type="radio" name="radio">
-                    <span class="radio-button__text">Повестка дня</span>
-                </label>
-
-                <label class="radio-button">
-                    <input class="radio-button__input visually-hidden" type="radio" name="radio">
-                    <span class="radio-button__text">Завтра</span>
-                </label>
-
-                <label class="radio-button">
-                    <input class="radio-button__input visually-hidden" type="radio" name="radio">
-                    <span class="radio-button__text">Просроченные</span>
-                </label>
-            </div>
+            <nav class="tasks-switch">
+                <a href="/" class="tasks-switch__item tasks-switch__item--active">Все задачи</a>
+                <a href="/" class="tasks-switch__item">Повестка дня</a>
+                <a href="/" class="tasks-switch__item">Завтра</a>
+                <a href="/" class="tasks-switch__item">Просроченные</a>
+            </nav>
 
             <label class="checkbox">
                 <input id="show-complete-tasks" class="checkbox__input visually-hidden" type="checkbox" checked>
@@ -56,40 +41,47 @@
         </div>
 
         <table class="tasks">
+            <?php foreach ($data['get_tasks_code']($data['tasks'], $data['current_project']) as $task): ?>
+                <?php $class_task_status = ''; ?>
+                <?php if ($task['completed']): ?>
+                    <?php $class_task_status = 'task--completed'; ?>
+                <?php elseif ($task['date']): ?>
+                    <?php $days_until_deadline = floor(strtotime($task['date']) / 86400) - (floor($data['current_ts'] / 86400) + 1); ?>
+                    <?php $class_task_status = ($days_until_deadline <= 0 ? 'task--important' : ''); ?>
+                <?php endif; ?>
 
-            <?php foreach ($tasks as $task) : ?>
-                <tr class="tasks__item task <?php if ($task['completed']) echo "task--completed"; else if ($check_deadline($task['date'])) echo "task--important"; ?>">
+                <tr class="tasks__item task <?= $class_task_status; ?>">
                     <td class="task__select">
                         <label class="checkbox task__checkbox">
-                            <input class="checkbox__input visually-hidden" type="checkbox">
-                            <span class="checkbox__text"><?php echo $task['title']; ?></span>
+                            <input class="checkbox__input visually-hidden"
+                                   type="checkbox" <?= ($task['completed'] ? 'checked' : ''); ?>>
+                            <span class="checkbox__text"><?= $task['title']; ?></span>
                         </label>
                     </td>
-
-                    <td class="task__date">
-                        <?php echo ($task['date']) ? $task['date'] : "Нет"; ?>
-                    </td>
+                    <td class="task__date"> <?php echo ($task['date']) ? $task['date'] : "Нет"; ?></td>
 
                     <td class="task__controls">
-                        <button class="expand-control" type="button" name="button"><?php echo $task['title']; ?></button>
+                        <?php if (!$task['completed']): ?>
+                            <button class="expand-control" type="button" name="button">Действия
+                            </button>
 
-                        <ul class="expand-list hidden">
-                            <li class="expand-list__item">
-                                <a href="#">Выполнить</a>
-                            </li>
+                            <ul class="expand-list hidden">
+                                <li class="expand-list__item">
+                                    <a href="#">Выполнить</a>
+                                </li>
 
-                            <li class="expand-list__item">
-                                <a href="#">Удалить</a>
-                            </li>
+                                <li class="expand-list__item">
+                                    <a href="#">Удалить</a>
+                                </li>
 
-                            <li class="expand-list__item">
-                                <a href="#">Дублировать</a>
-                            </li>
-                        </ul>
+                                <li class="expand-list__item">
+                                    <a href="#">Дублировать</a>
+                                </li>
+                            </ul>
+                        <?php endif; ?>
                     </td>
                 </tr>
             <?php endforeach; ?>
-
         </table>
     </main>
 </div>
