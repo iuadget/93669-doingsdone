@@ -4,17 +4,25 @@
 
         <nav class="main-navigation">
             <ul class="main-navigation__list">
-                <?php foreach ($data['projects'] as $project => $project_name): ?>
-                    <li class="main-navigation__list-item <?= ($data['current_project'] == $project ? 'main-navigation__list-item--active' : ''); ?>">
-                        <a class="main-navigation__list-item-link"
-                           href="/index.php?project=<?= $project; ?>"><?= $project_name; ?></a>
-                        <span class="main-navigation__list-item-count"><?= $data['get_tasks_project']($data['tasks'], $project); ?></span>
+                <?php
+                foreach ($templateData['projects'] as $key => $val):
+                    $firstItem = '';
+
+                    if ($key == 0) {
+                        $firstItem = "main-navigation__list-item--active";
+                    }
+                    ?>
+                    <li class="main-navigation__list-item <?= $firstItem; ?>">
+                        <a class="main-navigation__list-item-link" href="/index.php?project=<?= $key; ?>">
+                            <?= htmlspecialchars($val); ?></a>
+                        <span class="main-navigation__list-item-count"><?= getNumberTasks($templateData['allTasks'],
+                                htmlspecialchars($val)); ?></span>
                     </li>
                 <?php endforeach; ?>
             </ul>
         </nav>
 
-        <a class="button button--transparent button--plus content__side-button" href="#">Добавить проект</a>
+        <a class="button button--transparent button--plus content__side-button" href="/index.php?add">Добавить проект</a>
     </section>
 
     <main class="content__main">
@@ -35,51 +43,29 @@
             </nav>
 
             <label class="checkbox">
-                <input id="show-complete-tasks" class="checkbox__input visually-hidden" type="checkbox" checked>
+                <input id="show-complete-tasks" class="checkbox__input visually-hidden" checked type="checkbox">
                 <span class="checkbox__text">Показывать выполненные</span>
             </label>
         </div>
 
         <table class="tasks">
-            <?php foreach ($data['get_tasks_code']($data['tasks'], $data['current_project']) as $task): ?>
-                <?php $class_task_status = ''; ?>
-                <?php if ($task['completed']): ?>
-                    <?php $class_task_status = 'task--completed'; ?>
-                <?php elseif ($task['date']): ?>
-                    <?php $days_until_deadline = floor(strtotime($task['date']) / 86400) - (floor($data['current_ts'] / 86400) + 1); ?>
-                    <?php $class_task_status = ($days_until_deadline <= 0 ? 'task--important' : ''); ?>
-                <?php endif; ?>
+            <?php
+            foreach ($templateData['tasksToDisplay'] as $key => $val):
+                $taskCompleted = '';
 
-                <tr class="tasks__item task <?= $class_task_status; ?>">
+                if ($val['completed'] == 'Да') {
+                    $taskCompleted = 'task--completed';
+                }
+                ?>
+                <tr class="tasks__item task <?= $taskCompleted; ?>">
                     <td class="task__select">
                         <label class="checkbox task__checkbox">
-                            <input class="checkbox__input visually-hidden"
-                                   type="checkbox" <?= ($task['completed'] ? 'checked' : ''); ?>>
-                            <span class="checkbox__text"><?= $task['title']; ?></span>
+                            <input class="checkbox__input visually-hidden" type="checkbox" checked>
+                            <span class="checkbox__text"><?= htmlspecialchars($val['title']); ?></span>
                         </label>
                     </td>
-                    <td class="task__date"> <?php echo ($task['date']) ? $task['date'] : "Нет"; ?></td>
-
-                    <td class="task__controls">
-                        <?php if (!$task['completed']): ?>
-                            <button class="expand-control" type="button" name="button">Действия
-                            </button>
-
-                            <ul class="expand-list hidden">
-                                <li class="expand-list__item">
-                                    <a href="#">Выполнить</a>
-                                </li>
-
-                                <li class="expand-list__item">
-                                    <a href="#">Удалить</a>
-                                </li>
-
-                                <li class="expand-list__item">
-                                    <a href="#">Дублировать</a>
-                                </li>
-                            </ul>
-                        <?php endif; ?>
-                    </td>
+                    <td class="task__date"><?= htmlspecialchars($val['date']); ?></td>
+                    <td class="task__controls"></td>
                 </tr>
             <?php endforeach; ?>
         </table>
