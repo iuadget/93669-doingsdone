@@ -1,4 +1,6 @@
 <?php
+ob_start();
+error_reporting(E_ALL);
 require_once 'functions.php';
 
 define('P_ALL', 0);
@@ -8,7 +10,7 @@ define('P_WORK', 3);
 define('P_HOME', 4);
 define('P_AUTO', 5);
 
-$current_ts = time();
+$projectList = ['Все', 'Входящие', 'Учеба', 'Работа', 'Домашние дела', 'Авто'];
 
 $projects = [
     P_ALL    => 'Все',
@@ -20,82 +22,98 @@ $projects = [
 ];
 $tasks = [
     [
-        'title'    => 'Собеседование в IT компании',
-        'date'     => '01.06.2017',
-        'project'  => P_WORK,
-        'completed'=> false,
+        'title'     => 'Собеседование в IT компании',
+        'date'      => '01.06.2017',
+        'project'   => 'Работа',
+        'completed' => 'Нет'
     ],
     [
-        'title'    => 'Выполнить тестовое задание',
-        'date'     => '25.05.2017',
-        'project'  => P_WORK,
-        'completed'=> false,
+        'title'     => 'Выполнить тестовое задание',
+        'date'      => '25.05.2017',
+        'project'   => 'Работа',
+        'completed' => 'Нет'
     ],
     [
-        'title'    => 'Сделать задание первого раздела',
-        'date'     => '21.04.2017',
-        'project'  => P_LEARN,
-        'completed'=> true,
+        'title'     => 'Сделать задание первого раздела',
+        'date'      => '21.04.2017',
+        'project'   => 'Учеба',
+        'completed' => 'Да'
     ],
     [
-        'title'    => 'Встреча с другом',
-        'date'     => '22.04.2017',
-        'project'  => P_INCOME,
-        'completed'=> false,
+        'title'     => 'Встреча с другом',
+        'date'      => '22.04.2017',
+        'project'   => 'Входящие',
+        'completed' => 'Нет'
     ],
     [
-        'title'    => 'Купить корм для кота',
-        'date'     => '',
-        'project'  => P_HOME,
-        'completed'=> false,
+        'title'     => 'Купить корм для кота',
+        'date'      => 'Нет',
+        'project'   => 'Домашние дела',
+        'completed' => 'Нет'
     ],
     [
-        'title'    => 'Заказать пиццу',
-        'date'     => '',
-        'project'  => P_HOME,
-        'completed'=> false,
-    ],
+        'title'     => 'Заказать пиццу',
+        'date'      => 'Нет',
+        'project'   => 'Домашние дела',
+        'completed' => 'Нет'
+    ]
 ];
 
-$current_project = get_current_code();
-if (!get_project_name ($projects, $current_project)) {
-    header($_SERVER["SERVER_PROTOCOL"] . ' 404 Not Found');
-    exit;
+$tasksToDisplay = [];
+$project = '';
+if (isset($_GET['project'])) {
+    $project = (int) abs(($_GET['project']));
+
+    if ($project > count($tasks) - 1) {
+        header('HTTP/1.0 404 Not Found');
+        exit();
+    } else {
+        $tasksToDisplay = array_filter($tasks, function($task) use ($projects, $project) {
+            return $project == 0 || $projects[$project] == $task['project'];
+        });
+    }
+} else {
+    $tasksToDisplay = $tasks;
 }
 
-$get_tasks_project = function ( $tasks,  $project) {
-    if ($project == P_ALL) {
-        return count($tasks);
-    }
-    $count = 0;
-    foreach ($tasks as $task) {
-        if ($task['project'] == $project) {
-            $count++;
+$bodyClassOverlay = '';
+$modalShow = false;
+if (isset($_GET['add']) || isset($_POST['send'])) {
+    $bodyClassOverlay = 'overlay';
+    $modalShow = true;
+}
+
+$expectedFields = ['task', 'project', 'date'];
+
+$newTask = ['completed' => 'Нет'];
+$errors = [];
+foreach ($expectedFields as $field) {
+    $newTask[$field] = '';
+    $errors[$field] = false;
+}
+if (isset($_POST['send'])) {
+    $errorsFound = false;
+    foreach ($expectedFields as $name) {
+        if (!empty($_POST[$name])) {
+            $newTask[$name] = sanitizeInput($_POST[$name]);
+        } else {
+            $errors[$name] = true;
+            $errorsFound = true;
         }
     }
-    return $count;
-};
-
-$get_tasks_code = function ( $tasks,  $project) {
-    if ($project == P_ALL) {
-        return $tasks;
+    if (!$errorsFound) {
+        array_unshift($tasksToDisplay, $newTask);
+        $bodyClassOverlay = '';
+        $modalShow = false;
     }
-    return array_filter($tasks, function ($task) use ($project) {
-        return ($task['project'] == $project);
-    });
-};
-
-function get_current_code()
-{
-    return (isset($_GET['project']) ? (int) $_GET['project'] : P_ALL);
-}
-
-function get_project_name(array $projects, $project)
-{
-    return (isset($projects[$project]) ? $projects[$project] : null);
+    if (isset($_FILES['preview'])) {
+        $file = $_FILES['preview'];
+        if (is_uploaded_file($file['tmp_name'])) {
+            move_uploaded_file($file['tmp_name'], __DIR__ . '/upload/' . $file['name']);
+        }
+    }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -106,71 +124,28 @@ function get_project_name(array $projects, $project)
     <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body><!--class="overlay"-->
+<body class=<?= $bodyClassOverlay; ?>>
 <h1 class="visually-hidden">Дела в порядке</h1>
 
 <div class="page-wrapper">
     <div class="container container--with-sidebar">
-        <?php
-        echo include_template('header.php');
-        echo include_template('main.php', [
-            'current_ts' => $current_ts,
+        <?= includeTemplate('header.php', []); ?>
+        <?= includeTemplate('main.php', [
             'projects' => $projects,
-            'tasks' => $tasks,
-            'current_project' => $current_project,
-            'get_tasks_project' => $get_tasks_project,
-            'get_tasks_code' => $get_tasks_code,
-            ]);
-        ?>
+            'tasksToDisplay' => $tasksToDisplay,
+            'allTasks' => $tasks
+        ]); ?>
     </div>
 </div>
+<?= includeTemplate('footer.php', []); ?>
 
-<?php echo include_template('footer.php'); ?>
-
-<div class="modal" hidden>
-    <button class="modal__close" type="button" name="button">Закрыть</button>
-
-    <h2 class="modal__heading">Добавление задачи</h2>
-
-    <form class="form" class="" action="index.html" method="post">
-        <div class="form__row">
-            <label class="form__label" for="name">Название <sup>*</sup></label>
-
-            <input class="form__input" type="text" name="name" id="name" value="" placeholder="Введите название">
-        </div>
-
-        <div class="form__row">
-            <label class="form__label" for="project">Проект <sup>*</sup></label>
-
-            <select class="form__input form__input--select" name="project" id="project">
-                <option value="">Входящие</option>
-            </select>
-        </div>
-
-        <div class="form__row">
-            <label class="form__label" for="date">Дата выполнения <sup>*</sup></label>
-
-            <input class="form__input form__input--date" type="text" name="date" id="date" value="" placeholder="Введите дату в формате ДД.ММ.ГГГГ">
-        </div>
-
-        <div class="form__row">
-            <label class="form__label" for="file">Файл</label>
-
-            <div class="form__input-file">
-                <input class="visually-hidden" type="file" name="preview" id="preview" value="">
-
-                <label class="button button--transparent" for="preview">
-                    <span>Выберите файл</span>
-                </label>
-            </div>
-        </div>
-
-        <div class="form__row form__row--controls">
-            <input class="button" type="submit" name="" value="Добавить">
-        </div>
-    </form>
-</div>
-
+<?php
+if ($modalShow) {
+    print(includeTemplate('add_project.php', [
+        'errors' => $errors,
+        'projects' => $projects,
+        'newTask' => $newTask]));
+} ?>
 <script type="text/javascript" src="js/script.js"></script>
 </body>
 </html>

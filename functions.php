@@ -1,39 +1,47 @@
 <?php
-
-function clean_tags(&$item) {
-
-    if (!($item && (is_string($item) || is_array($item)))) {
-        return $item;
+function addRequiredSpan($errors, $name)
+{
+    if ($errors[$name]) {
+        print("<span>Обязательное поле</span>");
     }
-
-    if (is_array($item)) {
-        return array_map(function ($item) {
-            return clean_tags($item);
-            }, $item);
-    }
-
-    $item = htmlspecialchars($item);
-    return $item;
-
 }
 
-function include_template($filename, $data = []) {
+function setClassError($errors, $name)
+{
+    return ($errors[$name]) ? 'form__input--error' : '';
+}
 
-    $filename = 'templates/' . $filename;
+function sanitizeInput($data) {
+    $data = trim($data);
+    $data = stripslashes($data);
+    $data = htmlspecialchars($data);
+    return $data;
+}
 
-    if ( ! file_exists( $filename ) || ! is_readable( $filename ) ) {
-        return '';
+function includeTemplate($template, $templateData) {
+    if (!isset($template)) {
+        return "";
     }
-
-    array_walk_recursive( $data, 'clean_tags' );
-
-    extract( $data );
-
     ob_start();
 
-    require_once $filename;
+    require_once __DIR__ . "/templates/$template";
 
     return ob_get_clean();
-
 }
 
+function getNumberTasks($tasks, $nameCategory) {
+    if (!$nameCategory) {
+        return 0;
+    }
+    if ($nameCategory == "Все") {
+        return count($tasks);
+    }
+
+    $countTask = 0;
+    foreach ($tasks as $key => $value) {
+        if ($value["project"] == $nameCategory) {
+            $countTask ++;
+        }
+    }
+    return $countTask;
+}
