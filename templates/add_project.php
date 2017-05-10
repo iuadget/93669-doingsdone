@@ -1,16 +1,3 @@
-<?php
-function getFormValue($templateData, $name)
-{
-    if ($name == 'project') {
-        $result = 'Выберите проект';
-        if ($templateData['newTask']['project']) {
-            $result = $templateData['newTask']['project'];
-        }
-        return $result;
-    }
-    return $templateData['newTask'][$name];
-}
-?>
 <div class="modal">
     <a href="/" class="modal__close">Закрыть</a>
 

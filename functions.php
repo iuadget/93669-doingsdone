@@ -2,7 +2,7 @@
 function addRequiredSpan($errors, $name)
 {
     if ($errors[$name]) {
-        print("<span>Обязательное поле</span>");
+        return("<span>Обязательное поле</span>");
     }
 }
 
@@ -44,4 +44,16 @@ function getNumberTasks($tasks, $nameCategory) {
         }
     }
     return $countTask;
+}
+
+function getFormValue($templateData, $name)
+{
+    if ($name == 'project') {
+        $result = 'Выберите проект';
+        if ($templateData['newTask']['project']) {
+            $result = $templateData['newTask']['project'];
+        }
+        return $result;
+    }
+    return $templateData['newTask'][$name];
 }

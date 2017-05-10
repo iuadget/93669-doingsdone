@@ -10,8 +10,6 @@ define('P_WORK', 3);
 define('P_HOME', 4);
 define('P_AUTO', 5);
 
-$projectList = ['Все', 'Входящие', 'Учеба', 'Работа', 'Домашние дела', 'Авто'];
-
 $projects = [
     P_ALL    => 'Все',
     P_INCOME => 'Входящие',
