@@ -49,7 +49,7 @@ function getNumberTasks($tasks, $nameCategory) {
 function getFormValue($templateData, $name)
 {
     if ($name == 'project') {
-        $result = 'Выберите проект';
+        $result = 'Входящие';
         if ($templateData['newTask']['project']) {
             $result = $templateData['newTask']['project'];
         }
