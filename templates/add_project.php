@@ -5,11 +5,9 @@
 
     <form class="form" class="" action="/index.php" method="post" enctype="multipart/form-data">
         <div class="form__row">
-            <label class="form__label" for="task">Название <sup>*</sup></label>
-            <?= addRequiredSpan($templateData['errors'], 'task'); ?>
-            <input class="form__input <?= setClassError($templateData['errors'], 'task'); ?>
-            " type="text" name="task" id="name" value="<?= getFormValue($templateData, 'task'); ?>
-            " placeholder="Введите название">
+            <label class="form__label" for="title">Название <sup>*</sup></label>
+            <?= addRequiredSpan($templateData['errors'], 'title'); ?>
+            <input class="form__input <?= setClassError($templateData['errors'], 'title'); ?>" type="text" name="title" id="name" value="<?= getFormValue($templateData, 'title'); ?>" placeholder="Введите название">
         </div>
 
         <div class="form__row">
@@ -33,9 +31,7 @@
         <div class="form__row">
             <label class="form__label" for="date">Дата выполнения <sup>*</sup></label>
             <?= addRequiredSpan($templateData['errors'], 'date'); ?>
-            <input class="form__input form__input--date <?= setClassError($templateData['errors'], 'date'); ?>
-            " type="text" name="date" id="date" value="<?= $templateData['newTask']['date']; ?>
-            " placeholder="Введите дату в формате ДД.ММ.ГГГГ">
+            <input class="form__input form__input--date <?= setClassError($templateData['errors'], 'date'); ?>" type="text" name="date" id="date" value="<?= $templateData['newTask']['date']; ?>" placeholder="Введите дату в формате ДД.ММ.ГГГГ">
         </div>
 
         <div class="form__row">
