@@ -81,7 +81,7 @@ if (isset($_GET['add']) || isset($_POST['send'])) {
     $modalShow = true;
 }
 
-$expectedFields = ['task', 'project', 'date'];
+$expectedFields = ['title', 'project', 'date'];
 
 $newTask = ['completed' => 'Нет'];
 $errors = [];
