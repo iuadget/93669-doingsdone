@@ -1,9 +1,49 @@
 <?php
+
+function searchUserByEmail($email, $users)
+{
+    $result = null;
+    foreach ($users as $user) {
+        if ($user['email'] == $email) {
+            $result = $user;
+            break;
+        }
+    }
+    return $result;
+}
+
+function validateLoginForm($users)
+{
+    $errors = false;
+    $user = null;
+    $fields = ['email', 'password'];
+    $output = AddkeysForValidation($fields);
+    foreach ($fields as $name) {
+        if (!empty($_POST[$name]) && $user = searchUserByEmail($_POST['email'], $users)) {
+            $output['valid'][$name] = sanitizeInput($_POST[$name]);
+        } else {
+            $output['errors'][$name] = true;
+            $errors = true;
+        }
+    }
+    return ['error' => $errors, 'output' => $output, 'user' => $user];
+}
+
 function addRequiredSpan($errors, $name)
 {
     if ($errors[$name]) {
         return("<span>Обязательное поле</span>");
     }
+}
+
+function AddkeysForValidation($keysField)
+{
+    $result = [];
+    foreach ($keysField as $field) {
+        $result['valid'][$field] = '';
+        $result['errors'][$field] = false;
+    }
+    return $result;
 }
 
 function setClassError($errors, $name)
