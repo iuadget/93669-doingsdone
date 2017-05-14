@@ -20,7 +20,7 @@ function validateLoginForm($users)
     $output = AddkeysForValidation($fields);
     foreach ($fields as $name) {
         if (!empty($_POST[$name]) && $user = searchUserByEmail($_POST['email'], $users)) {
-            $output['valid'][$name] = sanitizeInput($_POST[$name]);
+            $output['valid'][$name] = ($_POST[$name]);
         } else {
             $output['errors'][$name] = true;
             $errors = true;

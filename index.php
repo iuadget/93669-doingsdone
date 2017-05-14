@@ -139,6 +139,10 @@ if (isset($_POST['send'])) {
         }
     }
 }
+
+if (isset($_SESSION['user']) and !(isset($_GET['add']) || isset($_POST['send']))) {
+    $bodyClassOverlay = '';
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
