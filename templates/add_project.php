@@ -13,13 +13,10 @@
         <div class="form__row">
             <label class="form__label" for="project">Проект <sup>*</sup></label>
             <?= addRequiredSpan($templateData['errors'], 'project'); ?>
-            <select class="form__input form__input--select
-            <?= setClassError($templateData['errors'], 'project'); ?>" name="project" id="project">
+            <select class="form__input form__input--select  <?= setClassError($templateData['errors'], 'project'); ?>" name="project" id="project">
                 <?php
                 $selectedValue = getFormValue($templateData, 'project');
-                $allOptions = array_merge([0 => 'Выберите проект'],
-                    array_combine($templateData['projects'],
-                        $templateData['projects']));
+                $allOptions = array_merge([0 => 'Выберите проект'], array_combine($templateData['projects'], $templateData['projects']));
                 foreach ($allOptions as $value => $option) {
                     $selected = $option == $selectedValue ? 'selected' : '';
                     echo '<option value="' . $value . '" ' . $selected . '>' . $option . '</option>';
