@@ -39,9 +39,17 @@
                 <a href="/" class="tasks-switch__item">Завтра</a>
                 <a href="/" class="tasks-switch__item">Просроченные</a>
             </nav>
+            <?php
+            $checked = '';
+            $hidden = 'hidden';
 
+            if ($templateData['show_completed']) {
+                $checked = 'checked';
+                $hidden = '';
+            }
+            ?>
             <label class="checkbox">
-                <input id="show-complete-tasks" class="checkbox__input visually-hidden" checked type="checkbox">
+                <input id="show-complete-tasks" class="checkbox__input visually-hidden" <?= $checked; ?> type="checkbox">
                 <span class="checkbox__text">Показывать выполненные</span>
             </label>
         </div>
@@ -50,12 +58,14 @@
             <?php
             foreach ($templateData['tasksToDisplay'] as $key => $val):
                 $taskCompleted = '';
+                $showCompletedTasks = '';
 
                 if ($val['completed'] == 'Да') {
                     $taskCompleted = 'task--completed';
+                    $showCompletedTasks = $hidden;
                 }
                 ?>
-                <tr class="tasks__item task <?= $taskCompleted; ?>">
+                <tr class="tasks__item task <?= $taskCompleted; ?>" <?= $showCompletedTasks; ?> >
                     <td class="task__select">
                         <label class="checkbox task__checkbox">
                             <input class="checkbox__input visually-hidden" type="checkbox" checked>

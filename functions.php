@@ -29,10 +29,14 @@ function validateLoginForm($users)
     return ['error' => $errors, 'output' => $output, 'user' => $user];
 }
 
-function addRequiredSpan($errors, $name)
+function addRequiredSpan($errors, $name, $text = '')
 {
     if ($errors[$name]) {
-        return("<span>Обязательное поле</span>");
+        if ($text) {
+            print("<p class='form__message'>$text</span>");
+        } else {
+            print("<span>Обязательное поле</span>");
+        }
     }
 }
 
