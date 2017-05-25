@@ -57,23 +57,15 @@
 
         <table class="tasks">
             <?php
-            foreach ($templateData['tasksToDisplay'] as $key => $val):
-                $taskCompleted = '';
-                $showCompletedTasks = '';
-
-                if ($val['completed'] == 'Да') {
-                    $taskCompleted = 'task--completed';
-                    $showCompletedTasks = $hidden;
-                }
-                ?>
-                <tr class="tasks__item task <?= $taskCompleted; ?>" <?= $showCompletedTasks; ?> >
+            foreach ( $templateData['tasksToDisplay'] as $key => $viewTask): ?>
+                <tr class="tasks__item task <?= $viewTask[ VIEW_FIELD_completed_class ]; ?>" >
                     <td class="task__select">
                         <label class="checkbox task__checkbox">
                             <input class="checkbox__input visually-hidden" type="checkbox" checked>
-                            <span class="checkbox__text"><?= htmlspecialchars($val['title']); ?></span>
+                            <span class="checkbox__text"><?= htmlspecialchars($viewTask[VIEW_FIELD_title]); ?></span>
                         </label>
                     </td>
-                    <td class="task__date"><?= htmlspecialchars($val['date']); ?></td>
+                    <td class="task__date"><?= htmlspecialchars($viewTask[VIEW_FIELD_date]); ?></td>
                     <td class="task__controls"></td>
                 </tr>
             <?php endforeach; ?>

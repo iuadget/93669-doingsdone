@@ -1,4 +1,17 @@
 <?php
+define( 'FIELD_title', 'title' );
+define( 'FIELD_date', 'date' );
+define( 'FIELD_project', 'project' );
+define( 'FIELD_completed', 'completed' );
+
+define('FIELD_VALUE_COMPLETE', 1);
+define('FIELD_VALUE_INCOMPLETE', 0 );
+define('FIELD_DATE_NULL', null );
+
+define( 'VIEW_FIELD_title', 'title' );
+define( 'VIEW_FIELD_date', 'date' );
+define( 'VIEW_FIELD_project', 'project' );
+define( 'VIEW_FIELD_completed_class', 'completed' );
 
 function searchUserByEmail($email, $users)
 {
@@ -110,4 +123,82 @@ function arrayDelRealizedTask(array $tasks): array
         }
     }
     return $tasks;
+}
+
+/**
+ * @return void
+ */
+function ifRequestForShowCompleted()
+{
+	if( isset( $_GET['show_completed'] ) )
+		setShowCompleted( $_GET[ 'show_completed' ] );
+}
+
+/**
+ * @param mixed $showCompleted
+ *
+ * @return void
+ */
+function setShowCompleted( $showCompleted )
+{
+	if ( (bool)$showCompleted )
+		setcookie('show_completed',  (string)$showCompleted, strtotime("+30 days"), '/');
+	else
+		setcookie('show_completed', '', 0, '/' );
+}
+
+/**
+ * @return bool
+ */
+function showWithCompleted()
+{
+	if (isset($_COOKIE['show_completed']))
+		return (bool)$_COOKIE['show_completed'];
+
+	if (isset( $_GET['show_completed'] ))
+		return (bool)$_GET['show_completed'];
+
+	return false;
+}
+
+/**
+ * @param array $tasks
+ * @return array
+ */
+function filterTasks( array $tasks )
+{
+	$return = [];
+	while( count( $tasks ) )
+	{
+		$task = array_shift( $tasks );
+		if ( ! showWithCompleted() && $task['completed'] === FIELD_VALUE_COMPLETE )
+			continue;
+
+		$return[] = $task;
+	}
+
+	return $return;
+}
+
+/**
+ * @param array $tasks
+ * @return array
+ */
+function getViewTasks( array $tasks )
+{
+	$result = [];
+	while( count( $tasks ) )
+	{
+		$task = array_shift( $tasks );
+		$viewTask = [
+			VIEW_FIELD_title => $task[FIELD_title],
+			VIEW_FIELD_project => $task[FIELD_project],
+			VIEW_FIELD_date => ($task[FIELD_date] === FIELD_DATE_NULL) ? 'Нет' : $task[FIELD_date],
+			VIEW_FIELD_completed_class => ($task[FIELD_completed] === FIELD_VALUE_COMPLETE) ? 'task--completed' : ''
+		];
+
+		$result[] = $viewTask;
+	}
+
+	return $result;
 }

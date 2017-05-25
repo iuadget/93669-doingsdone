@@ -21,40 +21,40 @@ $projects = [
 ];
 $tasks = [
     [
-        'title'     => 'Собеседование в IT компании',
-        'date'      => '01.06.2017',
-        'project'   => 'Работа',
-        'completed' => 'Нет'
+        FIELD_title     => 'Собеседование в IT компании',
+        FIELD_date      => '01.06.2017',
+        FIELD_project   => 'Работа',
+        FIELD_completed => FIELD_VALUE_INCOMPLETE
     ],
     [
-        'title'     => 'Выполнить тестовое задание',
-        'date'      => '25.05.2017',
-        'project'   => 'Работа',
-        'completed' => 'Нет'
+		FIELD_title     => 'Выполнить тестовое задание',
+		FIELD_date      => '25.05.2017',
+		FIELD_project   => 'Работа',
+		FIELD_completed => FIELD_VALUE_INCOMPLETE
     ],
     [
-        'title'     => 'Сделать задание первого раздела',
-        'date'      => '21.04.2017',
-        'project'   => 'Учеба',
-        'completed' => 'Да'
+		FIELD_title     => 'Сделать задание первого раздела',
+		FIELD_date      => '21.04.2017',
+		FIELD_project   => 'Учеба',
+		FIELD_completed => FIELD_VALUE_COMPLETE
     ],
     [
-        'title'     => 'Встреча с другом',
-        'date'      => '22.04.2017',
-        'project'   => 'Входящие',
-        'completed' => 'Нет'
+		FIELD_title     => 'Встреча с другом',
+		FIELD_date      => '22.04.2017',
+		FIELD_project   => 'Входящие',
+		FIELD_completed => FIELD_VALUE_INCOMPLETE
     ],
     [
-        'title'     => 'Купить корм для кота',
-        'date'      => 'Нет',
-        'project'   => 'Домашние дела',
-        'completed' => 'Нет'
+		FIELD_title     => 'Купить корм для кота',
+		FIELD_date      => FIELD_DATE_NULL,
+		FIELD_project   => 'Домашние дела',
+		FIELD_completed => FIELD_VALUE_INCOMPLETE
     ],
     [
-        'title'     => 'Заказать пиццу',
-        'date'      => 'Нет',
-        'project'   => 'Домашние дела',
-        'completed' => 'Нет'
+		FIELD_title     => 'Заказать пиццу',
+		FIELD_date      => FIELD_DATE_NULL,
+		FIELD_project   => 'Домашние дела',
+		FIELD_completed => FIELD_VALUE_INCOMPLETE
     ]
 ];
 
@@ -144,21 +144,9 @@ if (isset($_SESSION['user']) and !(isset($_GET['add']) || isset($_POST['send']))
     $bodyClassOverlay = '';
 }
 
-$show_completed = false;
-if (isset($_GET['show_completed'])) {
-    $show_completed = sanitizeInput($_GET['show_completed']);
-    setcookie('show_completed', $show_completed, strtotime("+30 days"));
-} else if (isset($_COOKIE['show_completed'])) {
-    $show_completed = $_COOKIE['show_completed'];
-}
+ifRequestForShowCompleted();
 
-$show_completed = false;
-if (isset($_GET['show_completed'])) {
-    $show_completed = sanitizeInput($_GET['show_completed']);
-    setcookie('show_completed', $show_completed, strtotime("+30 days"));
-} else if (isset($_COOKIE['show_completed'])) {
-    $show_completed = $_COOKIE['show_completed'];
-}
+$tasksToDisplay = filterTasks( $tasksToDisplay );
 
 $checked = '';
 $hidden = 'hidden';
@@ -187,7 +175,7 @@ if (isset($_COOKIE['show_completed'])) {
         if (!$user) {
             print(includeTemplate('guest.php', $dataForHeaderTemplate + ['showAuthenticationForm' => $showAuthenticationForm]));
         } else {
-            print (includeTemplate('main.php', ['projects' => $projects, 'tasksToDisplay' => $tasksToDisplay, 'allTasks' => $tasks, 'show_completed' => $show_completed, 'checked' => $checked, 'hidden' => $hidden]));
+            print (includeTemplate('main.php', ['projects' => $projects, 'tasksToDisplay' => getViewTasks( $tasksToDisplay ), 'allTasks' => $tasks, 'show_completed' => showWithCompleted(), 'checked' => $checked, 'hidden' => $hidden]));
         }
         ?>
     </div>
