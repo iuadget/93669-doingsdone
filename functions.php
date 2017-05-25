@@ -1,56 +1,61 @@
 <?php
-define( 'FIELD_title', 'title' );
-define( 'FIELD_date', 'date' );
-define( 'FIELD_project', 'project' );
-define( 'FIELD_completed', 'completed' );
-
-define('FIELD_VALUE_COMPLETE', 1);
-define('FIELD_VALUE_INCOMPLETE', 0 );
-define('FIELD_DATE_NULL', null );
-
 define( 'VIEW_FIELD_title', 'title' );
 define( 'VIEW_FIELD_date', 'date' );
 define( 'VIEW_FIELD_project', 'project' );
 define( 'VIEW_FIELD_completed_class', 'completed' );
 
+
+/**
+ * @param $email
+ * @param $users
+ * @return null|array
+ */
 function searchUserByEmail($email, $users)
 {
-    $result = null;
     foreach ($users as $user) {
-        if ($user['email'] == $email) {
-            $result = $user;
-            break;
+        if ($user[USER_FIELD_email] == $email) {
+            return $user;
         }
     }
-    return $result;
+    return null;
 }
 
-function validateLoginForm($users)
+define( 'LOGIN_ERROR_EMPTY_EMAIL', 1 );
+define( 'LOGIN_ERROR_USER_NOT_FOUND', 2 );
+define( 'LOGIN_ERROR_EMPTY_PASSWORD', 3 );
+define( 'LOGIN_ERROR_INCORRECT_PASSWORD', 4 );
+define( 'LOGIN_ERROR_NO_ERROR', 0 );
+
+/**
+ * @return array
+ */
+function checkLoginForm()
 {
-    $errors = false;
-    $user = null;
-    $fields = ['email', 'password'];
-    $output = AddkeysForValidation($fields);
-    foreach ($fields as $name) {
-        if (!empty($_POST[$name]) && $user = searchUserByEmail($_POST['email'], $users)) {
-            $output['valid'][$name] = ($_POST[$name]);
-        } else {
-            $output['errors'][$name] = true;
-            $errors = true;
-        }
-    }
-    return ['error' => $errors, 'output' => $output, 'user' => $user];
+    if ( empty( $_POST['email'] ) )
+    	return [ null, LOGIN_ERROR_EMPTY_EMAIL ];
+
+    if ( ! $user = searchUserByEmail( $_POST['email'], getSourceUsers() ) )
+    	return [ null, LOGIN_ERROR_USER_NOT_FOUND ];
+
+    if ( empty ($_POST['password'] ) )
+    	return [ $user, LOGIN_ERROR_EMPTY_PASSWORD ];
+
+    if ( ! password_verify($_POST['password'], $user[USER_FIELD_password]))
+    	return [ $user, LOGIN_ERROR_INCORRECT_PASSWORD ];
+
+    return [ $user, LOGIN_ERROR_NO_ERROR ];
 }
 
-function addRequiredSpan($errors, $name, $text = '')
+function addRequiredSpan($errors, $name, $text = '', $textFromErrors = false)
 {
-    if (isset($errors[$name])) {
-        if ($text) {
-            print("<p class='form__message'>$text</span>");
-        } else {
-            print("<span>Обязательное поле</span>");
-        }
-    }
+    if (! isset($errors[$name]))
+	{
+		return '';
+	}
+	if (!$text)
+		$text = "<span>Обязательное поле</span>";
+
+    return sprintf( "<p class='form__message'>%s</span>", $textFromErrors ? $errors[ $name ] : $text );
 }
 
 function AddkeysForValidation($keysField)
@@ -125,12 +130,17 @@ function arrayDelRealizedTask(array $tasks): array
     return $tasks;
 }
 
+function isRequestForShowCompleted()
+{
+	return isset( $_GET['show_completed'] );
+}
+
 /**
  * @return void
  */
-function ifRequestForShowCompleted()
+function actionShowCompleted()
 {
-	if( isset( $_GET['show_completed'] ) )
+	if( isRequestForShowCompleted() )
 		setShowCompleted( $_GET[ 'show_completed' ] );
 }
 
@@ -155,7 +165,7 @@ function showWithCompleted()
 	if (isset($_COOKIE['show_completed']))
 		return (bool)$_COOKIE['show_completed'];
 
-	if (isset( $_GET['show_completed'] ))
+	if (isRequestForShowCompleted())
 		return (bool)$_GET['show_completed'];
 
 	return false;
@@ -253,7 +263,12 @@ function isRequestForAddTask()
 	return (isset($_POST['send']));
 }
 
-function ifAddTask( array $tasks, array $emptyTask )
+/**
+ * @param array $tasks
+ * @param array $emptyTask
+ * @return array
+ */
+function actionAddTask( array $tasks, array $emptyTask )
 {
 	if ( ! isRequestForAddTask() )
 		return [ $tasks, $emptyTask, [] ];
@@ -295,16 +310,92 @@ function ifAddTask( array $tasks, array $emptyTask )
 }
 
 /**
- * @return bool
+ * @param array $taskAddErrors
+ * @param array $loginErrors
+ * @return string
  */
-function getBodyClassOverlay( $errorsAfterTaskAdd )
+function getBodyClassOverlay( $taskAddErrors, $loginErrors )
 {
 	switch (true)
 	{
 		case isRequestForShowAddTaskForm():
-		case count( $errorsAfterTaskAdd ):
+		case count( $taskAddErrors ):
+		case isRequestForShowLoginForm():
+		case count( $loginErrors ):
 			return 'overlay';
 	}
 
 	return '';
+}
+
+function isRequestForShowLoginForm()
+{
+	return isset($_GET['login']);
+}
+
+function isRequestForLogin()
+{
+	return isset($_POST['sendAuth']);
+}
+
+/**
+ * @return array
+ */
+function actionRequestForLogin()
+{
+	$fields = [
+		'email' => '',
+		'password' => '',
+	];
+
+	if ( ! isRequestForLogin() )
+	{
+		return [ $fields, [] ];
+	}
+
+	list( $user, $validationResult ) = checkLoginForm();
+
+	if ( $validationResult === LOGIN_ERROR_NO_ERROR )
+	{
+		$_SESSION['user'] = $user;
+		header("Location: /index.php");
+		exit();
+	}
+
+	foreach ( $fields as $fieldName => $field )
+	{
+		if ( isset( $_POST[ $fieldName ] ) )
+			$fields[ $fieldName ] = $_POST[ $fieldName ];
+	}
+
+	return [ $fields, getValidationExplain( $validationResult, [] ) ];
+}
+
+/**
+ * @param int $validationResult
+ * @param array $errors
+ *
+ * @return array
+ */
+function getValidationExplain( $validationResult, $errors )
+{
+	switch ( $validationResult )
+	{
+		case LOGIN_ERROR_NO_ERROR:
+			break;
+		case LOGIN_ERROR_INCORRECT_PASSWORD:
+			$errors[ 'password' ] = 'Пароль введён некорректно';
+			break;
+		case LOGIN_ERROR_EMPTY_PASSWORD:
+			$errors[ 'password' ] = 'Пароль - обязательно поле';
+			break;
+		case LOGIN_ERROR_USER_NOT_FOUND:
+			$errors[ 'email' ] = 'Пользователь не найден';
+			break;
+		case LOGIN_ERROR_EMPTY_EMAIL:
+			$errors[ 'email' ] = 'Email - обязательное поле';
+			break;
+	}
+
+	return $errors;
 }

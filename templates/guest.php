@@ -23,7 +23,7 @@ if (!$templateData['showAuthenticationForm']) {
 
     <h2 class="modal__heading">Вход на сайт</h2>
 
-    <form class="form" class="" action="index.php" method="post">
+    <form class="form" class="" action="/index.php" method="post">
         <div class="form__row">
             <label class="form__label" for="email">E-mail <sup>*</sup></label>
 
@@ -31,10 +31,10 @@ if (!$templateData['showAuthenticationForm']) {
                    type="text"
                    name="email"
                    id="email"
-                   value="<?= $templateData['valid']['email']; ?>"
+                   value="<?= $templateData['fields']['email']; ?>"
                    placeholder="Введите e-mail">
 
-            <?= addRequiredSpan($templateData['errors'], 'email', 'E-mail введён некорректно'); ?>
+            <?= addRequiredSpan($templateData['errors'], 'email', '', true); ?>
 
         </div>
 
@@ -44,10 +44,10 @@ if (!$templateData['showAuthenticationForm']) {
             <input class="form__input <?= setClassError($templateData['errors'], 'password'); ?>"
                    type="password" name="password"
                    id="password"
-                   value="<?= $templateData['valid']['password']; ?>"
+                   value="<?= $templateData['fields']['password']; ?>"
                    placeholder="Введите пароль">
 
-            <? addRequiredSpan($templateData['errors'], 'password', 'Пароль введён некорректно'); ?>
+            <?= addRequiredSpan($templateData['errors'], 'password', '', true); ?>
         </div>
 
         <div class="form__row">

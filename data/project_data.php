@@ -6,6 +6,15 @@ define('P_WORK', 3);
 define('P_HOME', 4);
 define('P_AUTO', 5);
 
+define( 'FIELD_title', 'title' );
+define( 'FIELD_date', 'date' );
+define( 'FIELD_project', 'project' );
+define( 'FIELD_completed', 'completed' );
+
+define('FIELD_VALUE_COMPLETE', 1);
+define('FIELD_VALUE_INCOMPLETE', 0 );
+define('FIELD_DATE_NULL', null );
+
 /**
  * @return array
  */
