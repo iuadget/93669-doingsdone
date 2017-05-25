@@ -44,7 +44,7 @@ function validateLoginForm($users)
 
 function addRequiredSpan($errors, $name, $text = '')
 {
-    if ($errors[$name]) {
+    if (isset($errors[$name])) {
         if ($text) {
             print("<p class='form__message'>$text</span>");
         } else {
@@ -65,7 +65,7 @@ function AddkeysForValidation($keysField)
 
 function setClassError($errors, $name)
 {
-    return ($errors[$name]) ? 'form__input--error' : '';
+    return (isset($errors[$name])) ? 'form__input--error' : '';
 }
 
 function sanitizeInput($data) {
@@ -241,4 +241,70 @@ function getViewTasks( array $tasks )
 	}
 
 	return $result;
+}
+
+function isRequestForShowAddTaskForm()
+{
+	return isset($_GET['add']);
+}
+
+function isRequestForAddTask()
+{
+	return (isset($_POST['send']));
+}
+
+function ifAddTask( array $tasks, array $emptyTask )
+{
+	if ( ! isRequestForAddTask() )
+		return [ $tasks, $emptyTask, [] ];
+
+	$expectedFields = [
+		'title' => FIELD_title,
+		'project' => FIELD_project,
+		'date' => FIELD_date
+	];
+
+	$errors = [];
+	foreach (array_keys($expectedFields) as $field) {
+		if ( ! isset( $_POST[$field] ) )
+			$errors[$field] = true;
+
+		if ( empty( $_POST[$field] ) )
+			$errors[$field] = true;
+	}
+
+	if ( count( $errors ) )
+		return [ $tasks, $emptyTask, $errors ];
+
+	$newTask = $emptyTask;
+	foreach ( $expectedFields as $postField => $taskField )
+	{
+		$newTask[$taskField] = $_POST[$postField];
+	}
+
+	array_unshift( $tasks, $newTask );
+
+	if (isset($_FILES['preview'])) {
+		$file = $_FILES['preview'];
+		if (is_uploaded_file($file['tmp_name'])) {
+			move_uploaded_file($file['tmp_name'], __DIR__ . '/upload/' . $file['name']);
+		}
+	}
+
+	return [ $tasks, $newTask, [] ];
+}
+
+/**
+ * @return bool
+ */
+function getBodyClassOverlay( $errorsAfterTaskAdd )
+{
+	switch (true)
+	{
+		case isRequestForShowAddTaskForm():
+		case count( $errorsAfterTaskAdd ):
+			return 'overlay';
+	}
+
+	return '';
 }

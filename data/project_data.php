@@ -21,6 +21,16 @@ function getSourceProjects()
 	];
 }
 
+function getEmptyTask()
+{
+	return [
+		FIELD_title     => '',
+		FIELD_date      => '',
+		FIELD_project   => '',
+		FIELD_completed => FIELD_VALUE_INCOMPLETE
+	];
+}
+
 /**
  * @return array
  */

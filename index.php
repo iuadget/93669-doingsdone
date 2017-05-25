@@ -36,50 +36,21 @@ $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : [];
 
 if (isset($_GET['add']) || isset($_POST['send'])) {
     $bodyClassOverlay = 'overlay';
-    $modalShow = true;
 }
 
 $allTasks = getSourceTasks();
 $projects = getSourceProjects();
 $tasksToDisplay = filterTasks( $allTasks, $projects );
 
-
-$expectedFields = ['title', 'project', 'date'];
-
-$newTask = ['completed' => 'Нет'];
-$errors = [];
-foreach ($expectedFields as $field) {
-    $newTask[$field] = '';
-    $errors[$field] = false;
-}
-if (isset($_POST['send'])) {
-    $errorsFound = false;
-    foreach ($expectedFields as $name) {
-        if (!empty($_POST[$name])) {
-            $newTask[$name] = sanitizeInput($_POST[$name]);
-        } else {
-            $errors[$name] = true;
-            $errorsFound = true;
-        }
-    }
-    if (!$errorsFound) {
-        array_unshift($tasksToDisplay, $newTask);
-        $bodyClassOverlay = '';
-        $modalShow = false;
-    }
-    if (isset($_FILES['preview'])) {
-        $file = $_FILES['preview'];
-        if (is_uploaded_file($file['tmp_name'])) {
-            move_uploaded_file($file['tmp_name'], __DIR__ . '/upload/' . $file['name']);
-        }
-    }
-}
+list( $tasksToDisplay, $newTask, $errorsAfterTaskAdd ) = ifAddTask( $tasksToDisplay, getEmptyTask() );
 
 if (isset($_SESSION['user']) and !(isset($_GET['add']) || isset($_POST['send']))) {
     $bodyClassOverlay = '';
 }
 
 ifRequestForShowCompleted();
+
+
 
 $checked = '';
 $hidden = 'hidden';
@@ -98,7 +69,7 @@ if (isset($_COOKIE['show_completed'])) {
     <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body class=<?= $bodyClassOverlay; ?>>
+<body class=<?= getBodyClassOverlay( $errorsAfterTaskAdd ); ?>>
 <h1 class="visually-hidden">Дела в порядке</h1>
 
 <div class="page-wrapper">
@@ -116,8 +87,8 @@ if (isset($_COOKIE['show_completed'])) {
 
     <?php
         print includeTemplate('footer.php', ['user' => $user]);
-        if ($modalShow) {
-            print(includeTemplate('add_project.php', ['errors' => $errors, 'projects' => $projects, 'newTask' => $newTask]));
+        if (isRequestForShowAddTaskForm() || count( $errorsAfterTaskAdd )) {
+            print(includeTemplate('add_project.php', ['errors' => $errorsAfterTaskAdd, 'projects' => $projects, 'newTask' => $newTask]));
         }
     ?>
 
