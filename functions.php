@@ -183,21 +183,22 @@ function filterTasks( array $tasks, array $projects )
  */
 function filterTasksByProjectId( array $tasks, array $projects )
 {
-	$project = '';
-	if (isset($_GET['project'])) {
-		$project = (int) abs(($_GET['project']));
-
-		if ($project > count($tasks) - 1) {
-			header('HTTP/1.0 404 Not Found');
-			exit();
-		} else {
-			return array_filter($tasks, function($task) use ($projects, $project) {
-				return $project == 0 || $projects[$project] == $task['project'];
-			});
-		}
-	} else {
+	if ( ! isset($_GET['project']))
+	{
 		return $tasks;
 	}
+
+	$project = (int) abs(($_GET['project']));
+
+	if ( ! isset( $projects[ $project ] ) ) {
+		header('HTTP/1.0 404 Not Found');
+		exit( '404 - Not Found' );
+	}
+
+	return array_filter($tasks, function($task) use ($projects, $project) {
+		return $project == 0 || $projects[$project] == $task['project'];
+	});
+
 }
 
 /**
