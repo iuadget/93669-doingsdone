@@ -29,10 +29,14 @@ function validateLoginForm($users)
     return ['error' => $errors, 'output' => $output, 'user' => $user];
 }
 
-function addRequiredSpan($errors, $name)
+function addRequiredSpan($errors, $name, $text = '')
 {
     if ($errors[$name]) {
-        return("<span>Обязательное поле</span>");
+        if ($text) {
+            print("<p class='form__message'>$text</span>");
+        } else {
+            print("<span>Обязательное поле</span>");
+        }
     }
 }
 
@@ -96,4 +100,14 @@ function getFormValue($templateData, $name)
         return $result;
     }
     return $templateData['newTask'][$name];
+}
+
+function arrayDelRealizedTask(array $tasks): array
+{
+    foreach ($tasks as $index => $task) {
+        if ($task['completed']) {
+            unset($tasks[$index]);
+        }
+    }
+    return $tasks;
 }

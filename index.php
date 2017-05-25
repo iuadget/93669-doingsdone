@@ -143,6 +143,21 @@ if (isset($_POST['send'])) {
 if (isset($_SESSION['user']) and !(isset($_GET['add']) || isset($_POST['send']))) {
     $bodyClassOverlay = '';
 }
+
+$show_completed = false;
+if (isset($_GET['show_completed'])) {
+    $show_completed = sanitizeInput($_GET['show_completed']);
+    setcookie('show_completed', $show_completed, strtotime("+30 days"));
+} else if (isset($_COOKIE['show_completed'])) {
+    $show_completed = $_COOKIE['show_completed'];
+}
+
+$checked = '';
+$hidden = 'hidden';
+if (isset($_COOKIE['show_completed'])) {
+    $checked = 'checked';
+    $hidden = '';
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -164,7 +179,7 @@ if (isset($_SESSION['user']) and !(isset($_GET['add']) || isset($_POST['send']))
         if (!$user) {
             print(includeTemplate('guest.php', $dataForHeaderTemplate + ['showAuthenticationForm' => $showAuthenticationForm]));
         } else {
-            print (includeTemplate('main.php', ['projects' => $projects, 'tasksToDisplay' => $tasksToDisplay, 'allTasks' => $tasks]));
+            print (includeTemplate('main.php', ['projects' => $projects, 'tasksToDisplay' => $tasksToDisplay, 'allTasks' => $tasks, 'show_completed' => $show_completed, 'checked' => $checked, 'hidden' => $hidden]));
         }
         ?>
     </div>
