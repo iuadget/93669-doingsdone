@@ -18,13 +18,6 @@ $taskAddErrors = [];
 list($tasksToDisplay, $newTask, $taskAddErrors) = actionAddTask( $tasksToDisplay, $newTask );
 
 actionShowCompleted();
-
-$checked = '';
-$hidden = 'hidden';
-if (isset($_COOKIE['show_completed'])) {
-    $checked = 'checked';
-    $hidden = '';
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -54,9 +47,7 @@ if (isset($_COOKIE['show_completed'])) {
                 'projects' => $projects,
                 'tasksToDisplay' => getViewTasks( $tasksToDisplay ),
                 'allTasks' => $allTasks,
-                'show_completed' => showWithCompleted(),
-                'checked' => $checked,
-                'hidden' => $hidden
+                'showCompletedChecked' => showWithCompleted() ? 'checked' : '',
             ]));
         }
         ?>

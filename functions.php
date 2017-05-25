@@ -162,11 +162,11 @@ function setShowCompleted( $showCompleted )
  */
 function showWithCompleted()
 {
-	if (isset($_COOKIE['show_completed']))
-		return (bool)$_COOKIE['show_completed'];
-
 	if (isRequestForShowCompleted())
 		return (bool)$_GET['show_completed'];
+
+	if (isset($_COOKIE['show_completed']))
+		return (bool)$_COOKIE['show_completed'];
 
 	return false;
 }
