@@ -163,9 +163,48 @@ function showWithCompleted()
 
 /**
  * @param array $tasks
+ * @param array $projects
+ *
  * @return array
  */
-function filterTasks( array $tasks )
+function filterTasks( array $tasks, array $projects )
+{
+	$tasks = filterTasksByProjectId( $tasks, $projects );
+
+	$tasks = filterTasksByCompleted( $tasks );
+
+	return $tasks;
+}
+
+/**
+ * @param array $tasks
+ * @param array $projects
+ * @return array
+ */
+function filterTasksByProjectId( array $tasks, array $projects )
+{
+	$project = '';
+	if (isset($_GET['project'])) {
+		$project = (int) abs(($_GET['project']));
+
+		if ($project > count($tasks) - 1) {
+			header('HTTP/1.0 404 Not Found');
+			exit();
+		} else {
+			return array_filter($tasks, function($task) use ($projects, $project) {
+				return $project == 0 || $projects[$project] == $task['project'];
+			});
+		}
+	} else {
+		return $tasks;
+	}
+}
+
+/**
+ * @param array $tasks
+ * @return array
+ */
+function filterTasksByCompleted( array $tasks )
 {
 	$return = [];
 	while( count( $tasks ) )

@@ -2,61 +2,8 @@
 session_start();
 error_reporting(E_ALL);
 require_once 'functions.php';
-require_once 'userdata.php';
-
-define('P_ALL', 0);
-define('P_INCOME', 1);
-define('P_LEARN', 2);
-define('P_WORK', 3);
-define('P_HOME', 4);
-define('P_AUTO', 5);
-
-$projects = [
-    P_ALL    => 'Все',
-    P_INCOME => 'Входящие',
-    P_LEARN  => 'Учеба',
-    P_WORK   => 'Работа',
-    P_HOME   => 'Домашние дела',
-    P_AUTO   => 'Авто',
-];
-$tasks = [
-    [
-        FIELD_title     => 'Собеседование в IT компании',
-        FIELD_date      => '01.06.2017',
-        FIELD_project   => 'Работа',
-        FIELD_completed => FIELD_VALUE_INCOMPLETE
-    ],
-    [
-		FIELD_title     => 'Выполнить тестовое задание',
-		FIELD_date      => '25.05.2017',
-		FIELD_project   => 'Работа',
-		FIELD_completed => FIELD_VALUE_INCOMPLETE
-    ],
-    [
-		FIELD_title     => 'Сделать задание первого раздела',
-		FIELD_date      => '21.04.2017',
-		FIELD_project   => 'Учеба',
-		FIELD_completed => FIELD_VALUE_COMPLETE
-    ],
-    [
-		FIELD_title     => 'Встреча с другом',
-		FIELD_date      => '22.04.2017',
-		FIELD_project   => 'Входящие',
-		FIELD_completed => FIELD_VALUE_INCOMPLETE
-    ],
-    [
-		FIELD_title     => 'Купить корм для кота',
-		FIELD_date      => FIELD_DATE_NULL,
-		FIELD_project   => 'Домашние дела',
-		FIELD_completed => FIELD_VALUE_INCOMPLETE
-    ],
-    [
-		FIELD_title     => 'Заказать пиццу',
-		FIELD_date      => FIELD_DATE_NULL,
-		FIELD_project   => 'Домашние дела',
-		FIELD_completed => FIELD_VALUE_INCOMPLETE
-    ]
-];
+require_once 'data/user_data.php';
+require_once 'data/project_data.php';
 
 $user = [];
 $bodyClassOverlay = '';
@@ -92,22 +39,10 @@ if (isset($_GET['add']) || isset($_POST['send'])) {
     $modalShow = true;
 }
 
-$tasksToDisplay = [];
-$project = '';
-if (isset($_GET['project'])) {
-    $project = (int) abs(($_GET['project']));
+$allTasks = getSourceTasks();
+$projects = getSourceProjects();
+$tasksToDisplay = filterTasks( $allTasks, $projects );
 
-    if ($project > count($tasks) - 1) {
-        header('HTTP/1.0 404 Not Found');
-        exit();
-    } else {
-        $tasksToDisplay = array_filter($tasks, function($task) use ($projects, $project) {
-            return $project == 0 || $projects[$project] == $task['project'];
-        });
-    }
-} else {
-    $tasksToDisplay = $tasks;
-}
 
 $expectedFields = ['title', 'project', 'date'];
 
@@ -146,8 +81,6 @@ if (isset($_SESSION['user']) and !(isset($_GET['add']) || isset($_POST['send']))
 
 ifRequestForShowCompleted();
 
-$tasksToDisplay = filterTasks( $tasksToDisplay );
-
 $checked = '';
 $hidden = 'hidden';
 if (isset($_COOKIE['show_completed'])) {
@@ -175,7 +108,7 @@ if (isset($_COOKIE['show_completed'])) {
         if (!$user) {
             print(includeTemplate('guest.php', $dataForHeaderTemplate + ['showAuthenticationForm' => $showAuthenticationForm]));
         } else {
-            print (includeTemplate('main.php', ['projects' => $projects, 'tasksToDisplay' => getViewTasks( $tasksToDisplay ), 'allTasks' => $tasks, 'show_completed' => showWithCompleted(), 'checked' => $checked, 'hidden' => $hidden]));
+            print (includeTemplate('main.php', ['projects' => $projects, 'tasksToDisplay' => getViewTasks( $tasksToDisplay ), 'allTasks' => $allTasks, 'show_completed' => showWithCompleted(), 'checked' => $checked, 'hidden' => $hidden]));
         }
         ?>
     </div>
