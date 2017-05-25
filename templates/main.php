@@ -49,9 +49,14 @@
             }
             ?>
             <label class="checkbox">
+<<<<<<< HEAD
             <input id="show-complete-tasks" class="checkbox__input visually-hidden"
                    type="checkbox" <?= $checked; ?> >
             <span class="checkbox__text">Показывать выполненные</span>
+=======
+                <input id="show-complete-tasks" class="checkbox__input visually-hidden" <?= $checked; ?> type="checkbox">
+                <span class="checkbox__text">Показывать выполненные</span>
+>>>>>>> 314903f792c5f6d08ae39072d39b2f4a8b47d3af
             </label>
         </div>
 

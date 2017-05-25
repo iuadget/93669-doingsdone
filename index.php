@@ -139,9 +139,17 @@ if (isset($_POST['send'])) {
         }
     }
 }
-
+/*
 if (isset($_SESSION['user']) and !(isset($_GET['add']) || isset($_POST['send']))) {
     $bodyClassOverlay = '';
+}*/
+
+$show_completed = false;
+if (isset($_GET['show_completed'])) {
+    $show_completed = sanitizeInput($_GET['show_completed']);
+    setcookie('show_completed', $show_completed, strtotime("+30 days"));
+} else if (isset($_COOKIE['show_completed'])) {
+    $show_completed = $_COOKIE['show_completed'];
 }
 
 $show_completed = false;
@@ -179,7 +187,11 @@ if (isset($_COOKIE['show_completed'])) {
         if (!$user) {
             print(includeTemplate('guest.php', $dataForHeaderTemplate + ['showAuthenticationForm' => $showAuthenticationForm]));
         } else {
+<<<<<<< HEAD
             print (includeTemplate('main.php', ['projects' => $projects, 'tasksToDisplay' => $tasksToDisplay, 'allTasks' => $tasks, 'show_completed' => $show_completed, 'checked' => $checked, 'hidden' => $hidden]));
+=======
+            print (includeTemplate('main.php', ['projects' => $projects, 'tasksToDisplay' => $tasksToDisplay, 'allTasks' => $tasks, 'show_completed' => $show_completed]));
+>>>>>>> 314903f792c5f6d08ae39072d39b2f4a8b47d3af
         }
         ?>
     </div>
