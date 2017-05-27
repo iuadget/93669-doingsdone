@@ -39,30 +39,24 @@
                 <a href="/" class="tasks-switch__item">Завтра</a>
                 <a href="/" class="tasks-switch__item">Просроченные</a>
             </nav>
-
-            <label class="checkbox">
-                <input id="show-complete-tasks" class="checkbox__input visually-hidden" checked type="checkbox">
-                <span class="checkbox__text">Показывать выполненные</span>
+           <label class="checkbox">
+            <input id="show-complete-tasks" class="checkbox__input visually-hidden"
+                   type="checkbox" <?= $templateData['showCompletedChecked'] ?> >
+            <span class="checkbox__text">Показывать выполненные</span>
             </label>
         </div>
 
         <table class="tasks">
             <?php
-            foreach ($templateData['tasksToDisplay'] as $key => $val):
-                $taskCompleted = '';
-
-                if ($val['completed'] == 'Да') {
-                    $taskCompleted = 'task--completed';
-                }
-                ?>
-                <tr class="tasks__item task <?= $taskCompleted; ?>">
+            foreach ( $templateData['tasksToDisplay'] as $key => $viewTask): ?>
+                <tr class="tasks__item task <?= $viewTask[ VIEW_FIELD_completed_class ]; ?>" >
                     <td class="task__select">
                         <label class="checkbox task__checkbox">
                             <input class="checkbox__input visually-hidden" type="checkbox" checked>
-                            <span class="checkbox__text"><?= htmlspecialchars($val['title']); ?></span>
+                            <span class="checkbox__text"><?= htmlspecialchars($viewTask[VIEW_FIELD_title]); ?></span>
                         </label>
                     </td>
-                    <td class="task__date"><?= htmlspecialchars($val['date']); ?></td>
+                    <td class="task__date"><?= htmlspecialchars($viewTask[VIEW_FIELD_date]); ?></td>
                     <td class="task__controls"></td>
                 </tr>
             <?php endforeach; ?>
